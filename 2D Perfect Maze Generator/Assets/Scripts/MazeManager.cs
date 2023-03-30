@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MazeManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class MazeManager : MonoBehaviour
     private Cell cellType = Cell.SQUARE;
 
     private ICell[,] maze;
+    private ICell currentCell;
+    private Stack<ICell> stack;
 
     #region Singleton
     private static MazeManager instance;
@@ -56,8 +59,10 @@ public class MazeManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        stack = new Stack<ICell>();
         GetComponent<SquareGridGenerator>().OnEmptyGridGenerated += SetMaze;
         GetComponent<SquareGridGenerator>().GenerateEmptyGrid();
+        StartCoroutine(DepthFirstSearchAlgorithm());
     }
 
     // Update is called once per frame
@@ -69,5 +74,43 @@ public class MazeManager : MonoBehaviour
     private void SetMaze(ICell[,] _maze)
     {
         maze = _maze;
+        Debug.Log("maze set");
+    }
+
+    private IEnumerator DepthFirstSearchAlgorithm()
+    {
+        yield return new WaitForSeconds(1);//small delay to prevent the coroutine from starting before the maze is set. It will be fixed
+        var wallRemover = GetComponent<IWallRemover>(); // Caching the wall remover
+        currentCell = GetRandomCell();
+        currentCell.IsVisited = true;
+        stack.Push(currentCell);
+        while (stack.Count > 0)
+        {
+            currentCell = stack.Pop();
+            if (isGenerationAnimated)
+                currentCell.SetColor(Color.blue);
+            var nextCell = currentCell.GetRandomUnvisitedNeighbour();
+            if (nextCell != null)
+            {
+                stack.Push(currentCell);
+                wallRemover.RemoveWalls(currentCell, nextCell);
+                nextCell.IsVisited = true;
+                stack.Push(nextCell);
+                if (isGenerationAnimated)
+                    yield return new WaitForSeconds(10 / (width * height));
+            }
+            if (isGenerationAnimated)
+                currentCell.SetColor(Color.green);
+        }
+        yield return null;
+    }
+
+    private ICell GetRandomCell()
+    {
+        int x = 2 * Random.Range(0, width / 2);
+        int y = 2 * Random.Range(0, height / 2);
+
+        var cell = maze[x, y];
+        return cell;
     }
 }

@@ -10,11 +10,11 @@ public class MazeManager : MonoBehaviour
     [SerializeField, Range(10, 250)] int height = 10;
     [SerializeField] private bool isGenerationAnimated;
     [SerializeField] private Transform mazeHolder;
+    private IGridGenerator gridGenerator;
+    private MazeGenerator mazeGenerator;
     private Cell cellType = Cell.SQUARE;
 
     private ICell[,] maze;
-    private ICell currentCell;
-    private Stack<ICell> stack;
 
     #region Singleton
     private static MazeManager instance;
@@ -39,10 +39,7 @@ public class MazeManager : MonoBehaviour
         set { isGenerationAnimated = value; }
     }
 
-    public ICell GetCell(int x, int y)
-    {
-        return maze[x, y];
-    }
+    
 
     public Transform MazeHolder { get { return mazeHolder; } }
     #endregion
@@ -55,57 +52,35 @@ public class MazeManager : MonoBehaviour
         else
             instance = this;
 
-    }
-    // Start is called before the first frame update
-    private void Start()
-    {
-        stack = new Stack<ICell>();
+        UIManager.Instance.OnGenerateMazePressed += CreateNewMaze;
         GetComponent<SquareGridGenerator>().OnEmptyGridGenerated += SetMaze;
-        GetComponent<SquareGridGenerator>().GenerateEmptyGrid();
-        StartCoroutine(DepthFirstSearchAlgorithm());
+        gridGenerator = GetComponent<IGridGenerator>();
+        mazeGenerator = GetComponent<MazeGenerator>();  
     }
-
-    // Update is called once per frame
-    private void Update()
+    private void CreateNewMaze()
     {
-        
+        DeleteMaze();
+        gridGenerator.GenerateEmptyGrid();
     }
 
     private void SetMaze(ICell[,] _maze)
     {
         maze = _maze;
-        Debug.Log("maze set");
+        mazeGenerator.GenerateMaze();
     }
 
-    private IEnumerator DepthFirstSearchAlgorithm()
+    private void DeleteMaze()
     {
-        yield return new WaitForSeconds(1);//small delay to prevent the coroutine from starting before the maze is set. It will be fixed
-        var wallRemover = GetComponent<IWallRemover>(); // Caching the wall remover
-        currentCell = GetRandomCell();
-        currentCell.IsVisited = true;
-        stack.Push(currentCell);
-        while (stack.Count > 0)
-        {
-            currentCell = stack.Pop();
-            if (isGenerationAnimated)
-                currentCell.SetColor(Color.blue);
-            var nextCell = currentCell.GetRandomUnvisitedNeighbour();
-            if (nextCell != null)
-            {
-                stack.Push(currentCell);
-                wallRemover.RemoveWalls(currentCell, nextCell);
-                nextCell.IsVisited = true;
-                stack.Push(nextCell);
-                if (isGenerationAnimated)
-                    yield return new WaitForSeconds(10 / (width * height));
-            }
-            if (isGenerationAnimated)
-                currentCell.SetColor(Color.green);
-        }
-        yield return null;
+        foreach(Transform child in mazeHolder)
+            Destroy(child.gameObject);
     }
 
-    private ICell GetRandomCell()
+
+    public ICell GetCell(int x, int y)
+    {
+        return maze[x, y];
+    }
+    public ICell GetRandomCell()
     {
         int x = 2 * Random.Range(0, width / 2);
         int y = 2 * Random.Range(0, height / 2);

@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class SquareGridGenerator : MonoBehaviour
+public class SquareGridGenerator : MonoBehaviour, IGridGenerator
 {
     #region Private variables
     [SerializeField] GameObject cellPrefab;
@@ -34,7 +33,6 @@ public class SquareGridGenerator : MonoBehaviour
             {
                 //Instantiating the cell in the scene
                 var cell = Instantiate(cellPrefab, new Vector2(x, y), Quaternion.identity);
-                //cell.transform.localScale = new Vector3(cellWidth, 0.1f, cellWidth);
                 cell.transform.SetParent(MazeManager.Instance.MazeHolder);
 
                 //Caching the cell into a 2D array

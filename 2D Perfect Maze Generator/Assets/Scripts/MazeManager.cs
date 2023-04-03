@@ -21,6 +21,8 @@ public class MazeManager : MonoBehaviour
     public static MazeManager Instance { get { return instance; } }
     #endregion
 
+    public event Action OnEmptyMazeSet;
+
     #region Public properties
     public int Width
     {
@@ -53,7 +55,7 @@ public class MazeManager : MonoBehaviour
             instance = this;
 
         UIManager.Instance.OnGenerateMazePressed += CreateNewMaze;
-        GetComponent<SquareGridGenerator>().OnEmptyGridGenerated += SetMaze;
+        GetComponent<SquareGridGenerator>().OnEmptyGridGenerated += SetEmptyMaze;
         gridGenerator = GetComponent<IGridGenerator>();
         mazeGenerator = GetComponent<MazeGenerator>();  
     }
@@ -63,14 +65,16 @@ public class MazeManager : MonoBehaviour
         gridGenerator.GenerateEmptyGrid();
     }
 
-    private void SetMaze(ICell[,] _maze)
+    private void SetEmptyMaze(ICell[,] _maze)
     {
         maze = _maze;
+        OnEmptyMazeSet?.Invoke();
         mazeGenerator.GenerateMaze();
     }
 
     private void DeleteMaze()
     {
+        mazeHolder.position = Vector3.zero; // Must reset the position of the MazeHolder before every new maze, otherwise it will not be centred.
         foreach(Transform child in mazeHolder)
             Destroy(child.gameObject);
     }

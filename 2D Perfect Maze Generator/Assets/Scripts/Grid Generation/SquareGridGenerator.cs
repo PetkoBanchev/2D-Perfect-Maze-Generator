@@ -32,8 +32,7 @@ public class SquareGridGenerator : MonoBehaviour, IGridGenerator
             for (int x = 0; x < width; x++)
             {
                 //Instantiating the cell in the scene
-                var cell = Instantiate(cellPrefab, new Vector2(x, y), Quaternion.identity);
-                cell.transform.SetParent(MazeManager.Instance.MazeHolder);
+                var cell = Instantiate(cellPrefab, new Vector2(x, y), Quaternion.identity, MazeManager.Instance.MazeHolder);
 
                 //Caching the cell into a 2D array
                 grid[x, y] = cell.GetComponent<ICell>();

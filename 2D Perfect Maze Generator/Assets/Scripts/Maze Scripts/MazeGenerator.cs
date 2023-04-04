@@ -6,15 +6,31 @@ public class MazeGenerator : MonoBehaviour
 {
     private ICell currentCell;
     private Stack<ICell> stack;
+    private Dictionary<Cell, IWallRemover> wallRemovers;
+
+    private void Awake()
+    {
+        GetAllWallRemovers();
+    }
     public void GenerateMaze()
     {
         StartCoroutine(DepthFirstSearchAlgorithm());
     }
 
+    /// <summary>
+    /// Caches all of the wall removers via relfection
+    /// </summary>
+    private void GetAllWallRemovers()
+    {
+        wallRemovers = new Dictionary<Cell, IWallRemover>();
+        var allWallRemovers = GetComponents<IWallRemover>();
+        foreach (var wallRemover in allWallRemovers)
+            wallRemovers.Add(wallRemover.CellType, wallRemover);
+    }
     private IEnumerator DepthFirstSearchAlgorithm()
     {
         stack = new Stack<ICell>();
-        var wallRemover = GetComponent<IWallRemover>(); // Caching the wall remover
+        var wallRemover = wallRemovers[MazeManager.Instance.CellType]; // Caching the current wall remover
         var isAnimated = MazeManager.Instance.IsGenerationAnimated;
 
         currentCell = MazeManager.Instance.GetRandomCell();
@@ -33,7 +49,7 @@ public class MazeGenerator : MonoBehaviour
                 nextCell.IsVisited = true;
                 stack.Push(nextCell);
                 if (isAnimated)
-                    yield return new WaitForSeconds(10 / (MazeManager.Instance.Width * MazeManager.Instance.Height));
+                    yield return new WaitForSeconds(0);
             }
             if (isAnimated)
                 currentCell.SetColor(Color.green);

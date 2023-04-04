@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject mazeMenu;
     [SerializeField] private InputField mazeWidthInput;
     [SerializeField] private InputField mazeHeightInput;
+    [SerializeField] private Dropdown cellTypeDropdown;
 
     private bool isMenuVisible = true;
 
@@ -27,6 +29,7 @@ public class UIManager : MonoBehaviour
         else
             instance = this;
 
+        DropdownListPopulator.PopulateDropdown<Cell>(cellTypeDropdown);
     }
 
     // Update is called once per frame
@@ -74,6 +77,11 @@ public class UIManager : MonoBehaviour
     public void SetMazeAnimation(bool value)
     {
         MazeManager.Instance.IsGenerationAnimated = value;
+    }
+
+    public void SetCellType(int index)
+    {
+        MazeManager.Instance.CellType = (Cell)index;
     }
 
     public void GenerateMaze()

@@ -10,11 +10,11 @@ public class MazeManager : MonoBehaviour
     [SerializeField, Range(10, 250)] int height = 10;
     [SerializeField] private bool isGenerationAnimated;
     [SerializeField] private Transform mazeHolder;
-    private IGridGenerator gridGenerator;
     private MazeGenerator mazeGenerator;
     private Cell cellType = Cell.SQUARE;
 
     private ICell[,] maze;
+    private Dictionary<Cell, IGridGenerator> gridGenerators;
 
     #region Singleton
     private static MazeManager instance;
@@ -41,7 +41,16 @@ public class MazeManager : MonoBehaviour
         set { isGenerationAnimated = value; }
     }
 
-    
+    public Cell CellType
+    {
+        get { return cellType; }
+        set 
+        {
+            gridGenerators[cellType].OnEmptyGridGenerated -= SetEmptyMaze; // unsubscribing the old gridGenerator
+            cellType = value;
+            gridGenerators[cellType].OnEmptyGridGenerated += SetEmptyMaze;
+        }
+    }
 
     public Transform MazeHolder { get { return mazeHolder; } }
     #endregion
@@ -53,16 +62,27 @@ public class MazeManager : MonoBehaviour
             Destroy(this.gameObject);
         else
             instance = this;
+        GetAllGenerators();
 
         UIManager.Instance.OnGenerateMazePressed += CreateNewMaze;
-        GetComponent<SquareGridGenerator>().OnEmptyGridGenerated += SetEmptyMaze;
-        gridGenerator = GetComponent<IGridGenerator>();
+        gridGenerators[cellType].OnEmptyGridGenerated += SetEmptyMaze; // default implementation
         mazeGenerator = GetComponent<MazeGenerator>();  
     }
+    /// <summary>
+    /// Caches all of the grid generators via relfection
+    /// </summary>
+    private void GetAllGenerators()
+    {
+        gridGenerators = new Dictionary<Cell, IGridGenerator>();
+        var allGridGenerators = GetComponents<IGridGenerator>();
+        foreach (var generator in allGridGenerators)
+            gridGenerators.Add(generator.CellType, generator);
+    }
+
     private void CreateNewMaze()
     {
         DeleteMaze();
-        gridGenerator.GenerateEmptyGrid();
+        gridGenerators[cellType].GenerateEmptyGrid();
     }
 
     private void SetEmptyMaze(ICell[,] _maze)

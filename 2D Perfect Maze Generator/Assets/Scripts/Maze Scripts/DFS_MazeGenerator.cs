@@ -2,35 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MazeGenerator : MonoBehaviour
+public class DFS_MazeGenerator : MonoBehaviour, IMazeGenerator
 {
     private ICell currentCell;
     private Stack<ICell> stack;
-    private Dictionary<Cell, IWallRemover> wallRemovers;
+    private Algorithm algorithm = Algorithm.DEPTH_FIRST_SEARCH;
 
-    private void Awake()
-    {
-        GetAllWallRemovers();
-    }
+    public Algorithm Algorithm { get { return algorithm; } }
+
     public void GenerateMaze()
     {
         StartCoroutine(DepthFirstSearchAlgorithm());
     }
 
-    /// <summary>
-    /// Caches all of the wall removers via relfection
-    /// </summary>
-    private void GetAllWallRemovers()
-    {
-        wallRemovers = new Dictionary<Cell, IWallRemover>();
-        var allWallRemovers = GetComponents<IWallRemover>();
-        foreach (var wallRemover in allWallRemovers)
-            wallRemovers.Add(wallRemover.CellType, wallRemover);
-    }
     private IEnumerator DepthFirstSearchAlgorithm()
     {
         stack = new Stack<ICell>();
-        var wallRemover = wallRemovers[MazeManager.Instance.CellType]; // Caching the current wall remover
+        var wallRemover = MazeManager.Instance.GetCurrentWallRemover();
         var isAnimated = MazeManager.Instance.IsGenerationAnimated;
 
         currentCell = MazeManager.Instance.GetRandomCell();

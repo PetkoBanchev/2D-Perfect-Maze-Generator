@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private InputField mazeWidthInput;
     [SerializeField] private InputField mazeHeightInput;
     [SerializeField] private Dropdown cellTypeDropdown;
+    [SerializeField] private Dropdown algorithmTypeDropdown;
 
     private bool isMenuVisible = true;
 
@@ -30,6 +31,7 @@ public class UIManager : MonoBehaviour
             instance = this;
 
         DropdownListPopulator.PopulateDropdown<Cell>(cellTypeDropdown);
+        DropdownListPopulator.PopulateDropdown<Algorithm>(algorithmTypeDropdown);
     }
 
     // Update is called once per frame
@@ -82,6 +84,11 @@ public class UIManager : MonoBehaviour
     public void SetCellType(int index)
     {
         MazeManager.Instance.CellType = (Cell)index;
+    }
+
+    public void SetAlgorithmType(int index)
+    {
+        MazeManager.Instance.Algorithm = (Algorithm)index;
     }
 
     public void GenerateMaze()

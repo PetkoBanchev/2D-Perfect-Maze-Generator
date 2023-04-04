@@ -7,5 +7,7 @@ public interface ICell
     public bool IsVisited { get; set; }
     public void RemoveWalls(Wall wall);
     public ICell GetRandomUnvisitedNeighbour();
+
+    public ICell GetRandomNeighbour();
     public void SetColor(Color color);
 }

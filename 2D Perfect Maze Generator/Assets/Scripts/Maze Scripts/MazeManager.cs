@@ -10,11 +10,17 @@ public class MazeManager : MonoBehaviour
     [SerializeField, Range(10, 250)] int height = 10;
     [SerializeField] private bool isGenerationAnimated;
     [SerializeField] private Transform mazeHolder;
-    private MazeGenerator mazeGenerator;
-    private Cell cellType = Cell.SQUARE;
+    //private MazeGenerator mazeGenerator;
 
     private ICell[,] maze;
+    
+    private Cell cellType = Cell.SQUARE;
     private Dictionary<Cell, IGridGenerator> gridGenerators;
+    private Dictionary<Cell, IWallRemover> wallRemovers;
+
+    [SerializeField] private Algorithm algorithm = Algorithm.DEPTH_FIRST_SEARCH;
+    private Dictionary<Algorithm, IMazeGenerator> mazeGenerators;
+
 
     #region Singleton
     private static MazeManager instance;
@@ -51,6 +57,11 @@ public class MazeManager : MonoBehaviour
             gridGenerators[cellType].OnEmptyGridGenerated += SetEmptyMaze;
         }
     }
+    public Algorithm Algorithm 
+    { 
+        get { return algorithm; }
+        set { algorithm = value; }
+    }
 
     public Transform MazeHolder { get { return mazeHolder; } }
     #endregion
@@ -62,21 +73,44 @@ public class MazeManager : MonoBehaviour
             Destroy(this.gameObject);
         else
             instance = this;
-        GetAllGenerators();
+        GetAllGridGenerators();
+        GetAllWallRemovers();
+        GetAllMazeGenerators();
 
         UIManager.Instance.OnGenerateMazePressed += CreateNewMaze;
         gridGenerators[cellType].OnEmptyGridGenerated += SetEmptyMaze; // default implementation
-        mazeGenerator = GetComponent<MazeGenerator>();  
     }
     /// <summary>
     /// Caches all of the grid generators via relfection
     /// </summary>
-    private void GetAllGenerators()
+    private void GetAllGridGenerators()
     {
         gridGenerators = new Dictionary<Cell, IGridGenerator>();
         var allGridGenerators = GetComponents<IGridGenerator>();
         foreach (var generator in allGridGenerators)
             gridGenerators.Add(generator.CellType, generator);
+    }
+
+    /// <summary>
+    /// Caches all of the wall removers via relfection
+    /// </summary>
+    private void GetAllWallRemovers()
+    {
+        wallRemovers = new Dictionary<Cell, IWallRemover>();
+        var allWallRemovers = GetComponents<IWallRemover>();
+        foreach (var wallRemover in allWallRemovers)
+            wallRemovers.Add(wallRemover.CellType, wallRemover);
+    }
+
+    /// <summary>
+    /// Caches all of the maze generators via relfection
+    /// </summary>
+    private void GetAllMazeGenerators()
+    {
+        mazeGenerators = new Dictionary<Algorithm, IMazeGenerator>();
+        var allMazeGenerators = GetComponents<IMazeGenerator>();
+        foreach (var generator in allMazeGenerators)
+            mazeGenerators.Add(generator.Algorithm, generator);
     }
 
     private void CreateNewMaze()
@@ -89,7 +123,7 @@ public class MazeManager : MonoBehaviour
     {
         maze = _maze;
         OnEmptyMazeSet?.Invoke();
-        mazeGenerator.GenerateMaze();
+        mazeGenerators[algorithm].GenerateMaze();
     }
 
     private void DeleteMaze()
@@ -111,5 +145,10 @@ public class MazeManager : MonoBehaviour
 
         var cell = maze[x, y];
         return cell;
+    }
+
+    public IWallRemover GetCurrentWallRemover() 
+    {
+        return wallRemovers[cellType];
     }
 }

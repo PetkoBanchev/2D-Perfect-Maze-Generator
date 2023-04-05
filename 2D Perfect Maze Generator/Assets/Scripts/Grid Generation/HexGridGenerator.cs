@@ -1,21 +1,21 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HexGridGenerator : MonoBehaviour, IGridGenerator
 {
     #region Private Variables
+
     [SerializeField] GameObject cellPrefab;
     //hexgon parameters
     [SerializeField] private float hexRadius;
     private float hexWidth;
     private float hexHeight;
     private Cell cellType = Cell.HEXAGON;
-    private ICell[,] grid;
-    #endregion
 
-    #region Public Variables
-    public event Action<ICell[,]> OnEmptyGridGenerated;
+    private Dictionary<Vector2, ICell> grid;
+
     #endregion
 
     #region Public Properties
@@ -25,15 +25,13 @@ public class HexGridGenerator : MonoBehaviour, IGridGenerator
     }
     #endregion
 
-    #region Public methods
-    public void GenerateEmptyGrid()
-    {
-        CalculateHexWidthAndHeight();
-        StartCoroutine(InstantiateGrid());
-    }
+    #region Events
+
+    public event Action<Dictionary<Vector2, ICell>> OnEmptyGridGenerated;
+    
     #endregion
 
-    #region Private methods
+    #region Private Methods
     /// <summary>
     /// Calculate the width and the height of the hexagon based on the radius.
     /// For more information check https://www.redblobgames.com/grids/hexagons/#map-storage
@@ -69,7 +67,7 @@ public class HexGridGenerator : MonoBehaviour, IGridGenerator
     {
         var width = MazeManager.Instance.Width;
         var height = MazeManager.Instance.Height;
-        grid = new ICell[width, height];
+        grid = new Dictionary<Vector2, ICell>();
 
         for (int y = 0; y < MazeManager.Instance.Height; y++)
         {
@@ -80,18 +78,27 @@ public class HexGridGenerator : MonoBehaviour, IGridGenerator
                 // For more info check https://www.redblobgames.com/grids/hexagons/#map-storage
                 if ((x % 2 == 0 && y % 2 == 0) || (x % 2 != 0 && y % 2 != 0))
                 {
+                    Vector2 coordinates = new Vector2(x, y);
                     var cell = Instantiate(cellPrefab, CalculateWorldPosition(x, y), Quaternion.identity, MazeManager.Instance.MazeHolder);
 
-                    //Caching the cell into a 2D array
-                    grid[x, y] = cell.GetComponent<ICell>();
-                    grid[x, y].X = x;
-                    grid[x, y].Y = y;
-
+                    //Caching the cell into a dictionary
+                    grid.Add(coordinates, cell.GetComponent<ICell>());
+                    grid[coordinates].Coordinates = coordinates;
                 }
             }
         }
-        yield return null;
+        
         OnEmptyGridGenerated?.Invoke(grid);
+        yield return null;
     }
     #endregion
+    
+    #region Public methods
+    public void GenerateEmptyGrid()
+    {
+        CalculateHexWidthAndHeight();
+        StartCoroutine(InstantiateGrid());
+    }
+    #endregion
+
 }

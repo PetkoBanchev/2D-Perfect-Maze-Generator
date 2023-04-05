@@ -1,28 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SquareCell : MonoBehaviour, ICell
 {
-    [SerializeField] private int x;
-    [SerializeField] private int y;
+    #region Private Variables
+
+    [SerializeField] private Vector2 coordinates;
     [SerializeField] private bool isVisited = false;
-    [SerializeField] private GameObject[] wallObjects;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    private List<ICell> unvisitedNeighbours = new List<ICell>();
+    private Dictionary<Wall, GameObject> walls;
     private List<ICell> neighbours = new List<ICell>();
+    private List<ICell> unvisitedNeighbours = new List<ICell>();
+
     private bool areNeighboursCached = false;
-    #region Public properties
-    public int X
+    #endregion
+
+    #region Public Properties
+
+    public Vector2 Coordinates
     {
-        get { return x; }
-        set { x = value; }
-    }
-    public int Y
-    {
-        get { return y; }
-        set { y = value; }
+        get { return coordinates; }
+        set { coordinates = value; }
     }
 
     public bool IsVisited
@@ -32,12 +31,35 @@ public class SquareCell : MonoBehaviour, ICell
     }
     #endregion
 
-    private void CacheUnvisitedNeighbours()
+    #region Private Methods
+    private void Awake()
     {
+        CacheWalls();
+    }
+    /// <summary>
+    /// Caches the walls in a dictionary with the Wall enum as a key.
+    /// </summary>
+    private void CacheWalls()
+    {
+        walls = new Dictionary<Wall, GameObject>();
+        var allWalls = GetComponentsInChildren<WallScript>();
+        foreach (var wall in allWalls)
+            walls.Add(wall.WallType, wall.gameObject);
+    }
+
+    /// <summary>
+    /// Caches all neighbours. Keeps track of the unvisited neighbours in a separate list. 
+    /// Simple if check makes sure we stay inside the bounds of the maze.
+    /// </summary>
+    private void CacheNeighbours()
+    {
+        var x = coordinates.x;
+        var y = coordinates.y;
+
         //Top Neighbour (x, y + 1)
         if (y + 1 < MazeManager.Instance.Height)
         {
-            var neigbhour = MazeManager.Instance.GetCell(x, y + 1);
+            var neigbhour = MazeManager.Instance.GetCell(new Vector2(x, y + 1));
             neighbours.Add(neigbhour);
             if (!neigbhour.IsVisited)
                 unvisitedNeighbours.Add(neigbhour);
@@ -45,7 +67,7 @@ public class SquareCell : MonoBehaviour, ICell
         //Right Neighbour (x +1, y)
         if (x + 1 < MazeManager.Instance.Width)
         {
-            var neigbhour = MazeManager.Instance.GetCell(x + 1, y);
+            var neigbhour = MazeManager.Instance.GetCell(new Vector2(x + 1, y));
             neighbours.Add(neigbhour);
             if (!neigbhour.IsVisited)
                 unvisitedNeighbours.Add(neigbhour);
@@ -53,7 +75,7 @@ public class SquareCell : MonoBehaviour, ICell
         //Bottom Neighbour (x, y - 1)
         if (y - 1 >= 0)
         {
-            var neigbhour = MazeManager.Instance.GetCell(x, y - 1);
+            var neigbhour = MazeManager.Instance.GetCell(new Vector2(x, y - 1));
             neighbours.Add(neigbhour);
             if (!neigbhour.IsVisited)
                 unvisitedNeighbours.Add(neigbhour);
@@ -61,17 +83,28 @@ public class SquareCell : MonoBehaviour, ICell
         //Left Neighbour (x - 1, y)
         if (x - 1 >= 0)
         {
-            var neigbhour = MazeManager.Instance.GetCell(x - 1, y);
+            var neigbhour = MazeManager.Instance.GetCell(new Vector2(x - 1, y));
             neighbours.Add(neigbhour);
             if (!neigbhour.IsVisited)
                 unvisitedNeighbours.Add(neigbhour);
         }
         areNeighboursCached = true;
+
     }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// Caches all neighbours on the first call.
+    /// Checks if any unvisited neighbours remain. If there are non it returns null.
+    /// If there are some, we first remove any visited neighbours and perform another count. If there are no unvisited neighbours remaining it returns null.
+    /// Finally, a random index is generated and a unvisited neighbour is returned.
+    /// </summary>
+    /// <returns></returns>
     public ICell GetRandomUnvisitedNeighbour()
     {
         if (!areNeighboursCached)
-            CacheUnvisitedNeighbours();
+            CacheNeighbours();
 
         if (unvisitedNeighbours.Count > 0)
         {
@@ -101,37 +134,34 @@ public class SquareCell : MonoBehaviour, ICell
         }
     }
 
+    /// <summary>
+    /// Caches all neighbours on the first call.
+    /// Generates a random index and returns the chosen neighbour.
+    /// </summary>
+    /// <returns></returns>
     public ICell GetRandomNeighbour()
     {
         if (!areNeighboursCached)
         {
-            CacheUnvisitedNeighbours();
+            CacheNeighbours();
         }
         var randomIndex = Random.Range(0, neighbours.Count);
         return neighbours[randomIndex];
     }
+
+    /// <summary>
+    /// Removes a wall based on the given key
+    /// </summary>
+    /// <param name="wall"></param>
     public void RemoveWalls(Wall wall)
     {
-        switch (wall)
-        {
-            case Wall.TOP:
-                wallObjects[0].SetActive(false);
-                break;
-            case Wall.RIGHT:
-                wallObjects[1].SetActive(false);
-                break;
-            case Wall.BOTTOM:
-                wallObjects[2].SetActive(false);
-                break;
-            case Wall.LEFT:
-                wallObjects[3].SetActive(false);
-                break;
-        }
+        walls[wall].SetActive(false);
     }
 
     public void SetColor(Color color)
     {
-        spriteRenderer.color = color;
+        if(spriteRenderer != null)
+            spriteRenderer.color = color;
     }
-    
+    #endregion
 }

@@ -1,86 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HexCell : MonoBehaviour, ICell
 {
     #region Private Variables
-    [SerializeField] private int x;
-    [SerializeField] private int y;
+
+    [SerializeField] private Vector2 coordinates;
     [SerializeField] private bool isVisited = false;
-    [SerializeField] private GameObject[] wallObjects;
+    [SerializeField] private Dictionary<Wall, GameObject> walls;
     [SerializeField] private SpriteRenderer spriteRenderer;
+
     private List<ICell> unvisitedNeighbours = new List<ICell>();
     private List<ICell> neighbours = new List<ICell>();
+
     private bool areNeighboursCached = false;
     #endregion
 
-    #region Private methods
-    private void CacheUnvisitedNeighbours()
-    {
-        //Top Right Neighbour (x + 1, y + 1)
-        if (x + 1 < MazeManager.Instance.Width && y + 1 < MazeManager.Instance.Height)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x + 1, y + 1);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
-        //Right Neigbhour (x + 2, y)
-        if (x + 2 < MazeManager.Instance.Width)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x + 2, y);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
-        //Bottom Right Neighbour (x + 1, y - 1)
-        if (x + 1 < MazeManager.Instance.Width && y - 1 >= 0)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x + 1, y - 1);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
-        //Bottom Left Neighbour (x - 1, y - 1)
-        if (x - 1 >= 0 && y - 1 >= 0)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x - 1, y - 1);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
-        //Left Neigbhour (x - 2, y)
-        if (x - 2 >= 0)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x - 2, y);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
-        //Top Left Neighbour (x - 1, y + 1)
-        if (x - 1 >= 0 && y + 1 < MazeManager.Instance.Height)
-        {
-            var neigbhour = MazeManager.Instance.GetCell(x - 1, y + 1);
-            neighbours.Add(neigbhour);
-            if (!neigbhour.IsVisited)
-                unvisitedNeighbours.Add(neigbhour);
-        }
+    #region Public Properties
 
-        areNeighboursCached = true;
-    }
-    #endregion
-
-    #region Public properties
-    public int X
-    {
-        get { return x; }
-        set { x = value; }
-    }
-    public int Y
-    {
-        get { return y; }
-        set { y = value; }
+    public Vector2 Coordinates 
+    { 
+        get { return coordinates; }
+        set { coordinates = value; }
     }
 
     public bool IsVisited
@@ -90,40 +31,99 @@ public class HexCell : MonoBehaviour, ICell
     }
     #endregion
 
-    #region Public methods
-    public void SetColor(Color color)
+    #region Private Methods
+
+    private void Awake()
     {
-        spriteRenderer.material.color = color;
+        CacheWalls();
     }
 
-    public void RemoveWalls(Wall wall)
+    /// <summary>
+    /// Caches the walls in a dictionary with the Wall enum as a key.
+    /// </summary>
+    private void CacheWalls()
     {
-        switch (wall)
-        {
-            case Wall.TOP_RIGHT:
-                wallObjects[0].SetActive(false);
-                break;
-            case Wall.RIGHT:
-                wallObjects[1].SetActive(false);
-                break;
-            case Wall.BOTTOM_RIGHT:
-                wallObjects[2].SetActive(false);
-                break;
-            case Wall.BOTTOM_LEFT:
-                wallObjects[3].SetActive(false);
-                break;
-            case Wall.LEFT:
-                wallObjects[4].SetActive(false);
-                break;
-            case Wall.TOP_LEFT:
-                wallObjects[5].SetActive(false);
-                break;
-        }
+        walls = new Dictionary<Wall, GameObject>();
+        var allWalls = GetComponentsInChildren<WallScript>();
+        foreach (var wall in allWalls)
+            walls.Add(wall.WallType, wall.gameObject);
     }
+
+    /// <summary>
+    /// Caches all neighbours. Keeps track of the unvisited neighbours in a separate list. 
+    /// Simple if check makes sure we stay inside the bounds of the maze.
+    /// </summary>
+    private void CacheNeighbours()
+    {
+        var x = coordinates.x;
+        var y = coordinates.y;
+
+        //Top Right Neighbour (x + 1, y + 1)
+        if (x + 1 < MazeManager.Instance.Width && y + 1 < MazeManager.Instance.Height)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x + 1, y + 1));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+        //Right Neigbhour (x + 2, y)
+        if (x + 2 < MazeManager.Instance.Width)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x + 2, y));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+        //Bottom Right Neighbour (x + 1, y - 1)
+        if (x + 1 < MazeManager.Instance.Width && y - 1 >= 0)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x + 1, y - 1));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+        //Bottom Left Neighbour (x - 1, y - 1)
+        if (x - 1 >= 0 && y - 1 >= 0)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x - 1, y - 1));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+        //Left Neigbhour (x - 2, y)
+        if (x - 2 >= 0)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x - 2, y));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+        //Top Left Neighbour (x - 1, y + 1)
+        if (x - 1 >= 0 && y + 1 < MazeManager.Instance.Height)
+        {
+            var neigbhour = MazeManager.Instance.GetCell( new Vector2(x - 1, y + 1));
+            neighbours.Add(neigbhour);
+            if (!neigbhour.IsVisited)
+                unvisitedNeighbours.Add(neigbhour);
+        }
+
+        areNeighboursCached = true;
+    }
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Caches all neighbours on the first call.
+    /// Checks if any unvisited neighbours remain. If there are non it returns null.
+    /// If there are some, we first remove any visited neighbours and perform another count. If there are no unvisited neighbours remaining it returns null.
+    /// Finally, a random index is generated and a unvisited neighbour is returned.
+    /// </summary>
+    /// <returns></returns>
     public ICell GetRandomUnvisitedNeighbour()
     {
         if (!areNeighboursCached)
-            CacheUnvisitedNeighbours();
+            CacheNeighbours();
 
         if (unvisitedNeighbours.Count > 0)
         {
@@ -154,14 +154,34 @@ public class HexCell : MonoBehaviour, ICell
         }
     }
 
+    /// <summary>
+    /// Caches all neighbours on the first call.
+    /// Generates a random index and returns the chosen neighbour.
+    /// </summary>
+    /// <returns></returns>
     public ICell GetRandomNeighbour()
     {
         if (!areNeighboursCached)
         {
-            CacheUnvisitedNeighbours();
+            CacheNeighbours();
         }
         var randomIndex = Random.Range(0, neighbours.Count);
         return neighbours[randomIndex];
+    }
+
+    /// <summary>
+    /// Removes a wall based on the given key
+    /// </summary>
+    /// <param name="wall"></param>
+    public void RemoveWalls(Wall wall)
+    {
+        walls[wall].SetActive(false);   
+    }
+
+    public void SetColor(Color color)
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.material.color = color;
     }
     #endregion
 }

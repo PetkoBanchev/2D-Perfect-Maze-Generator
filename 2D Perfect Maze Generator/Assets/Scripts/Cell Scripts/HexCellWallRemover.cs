@@ -2,12 +2,30 @@ using UnityEngine;
 
 public class HexCellWallRemover : MonoBehaviour, IWallRemover
 {
+    #region Private Variables
+
     private Cell cellType = Cell.HEXAGON;
+
+    #endregion
+
+    #region Public Properties
     public Cell CellType { get { return cellType; } }
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Removes the walls between two neighbouring cells. 
+    /// The position of the neighbour is determined by calculating the offset of the cells' coordinates.
+    /// Then the respective walls are removed.
+    /// </summary>
+    /// <param name="currentCell"></param>
+    /// <param name="nextCell"></param>
     public void RemoveWalls(ICell currentCell, ICell nextCell)
     {
-        int xOffset = currentCell.X - nextCell.X;
-        int yOffset = currentCell.Y - nextCell.Y;
+        int xOffset = (int)(currentCell.Coordinates.x - nextCell.Coordinates.x);
+        int yOffset = (int)(currentCell.Coordinates.y - nextCell.Coordinates.y);
 
         //Top Right Neighbour (x + 1, y + 1)
         if (xOffset == -1 && yOffset == -1)
@@ -46,4 +64,6 @@ public class HexCellWallRemover : MonoBehaviour, IWallRemover
             nextCell.RemoveWalls(Wall.BOTTOM_RIGHT);
         }
     }
+
+    #endregion
 }

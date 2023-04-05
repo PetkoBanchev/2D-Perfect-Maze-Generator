@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2546196157116837782}
   - component: {fileID: 2546196157116837783}
+  - component: {fileID: 4915800999556474729}
   m_Layer: 0
   m_Name: RightWall
   m_TagString: Untagged
@@ -52,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e58f8f94c7450cb4e8abbaac10f8f545, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,6 +85,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4915800999556474729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2546196157116837781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3208eaacd2f00fa4dbf4add9a8d98666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallType: 1
 --- !u!1 &2546196157171719524
 GameObject:
   m_ObjectHideFlags: 0
@@ -94,6 +108,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2546196157171719525}
   - component: {fileID: 2546196157171719526}
+  - component: {fileID: 5142229232909242387}
   m_Layer: 0
   m_Name: LeftWall
   m_TagString: Untagged
@@ -136,7 +151,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e58f8f94c7450cb4e8abbaac10f8f545, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -168,6 +183,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5142229232909242387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2546196157171719524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3208eaacd2f00fa4dbf4add9a8d98666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallType: 3
 --- !u!1 &2546196157332881699
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,7 +253,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 990cf74e176ed5d468642a5468fa2058, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -272,11 +300,6 @@ MonoBehaviour:
   x: 0
   y: 0
   isVisited: 0
-  wallObjects:
-  - {fileID: 2546196157772583381}
-  - {fileID: 2546196157116837781}
-  - {fileID: 2546196158586035714}
-  - {fileID: 2546196157171719524}
   spriteRenderer: {fileID: 2546196157332881700}
 --- !u!1 &2546196157772583381
 GameObject:
@@ -288,6 +311,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2546196157772583382}
   - component: {fileID: 2546196157772583383}
+  - component: {fileID: 3358018972937464039}
   m_Layer: 0
   m_Name: TopWall
   m_TagString: Untagged
@@ -330,7 +354,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e58f8f94c7450cb4e8abbaac10f8f545, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -362,6 +386,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3358018972937464039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2546196157772583381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3208eaacd2f00fa4dbf4add9a8d98666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallType: 0
 --- !u!1 &2546196158586035714
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,6 +409,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2546196158586035715}
   - component: {fileID: 2546196158586035716}
+  - component: {fileID: 3698971631211009796}
   m_Layer: 0
   m_Name: BottomWall
   m_TagString: Untagged
@@ -414,7 +452,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e58f8f94c7450cb4e8abbaac10f8f545, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -446,3 +484,16 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3698971631211009796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2546196158586035714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3208eaacd2f00fa4dbf4add9a8d98666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallType: 2

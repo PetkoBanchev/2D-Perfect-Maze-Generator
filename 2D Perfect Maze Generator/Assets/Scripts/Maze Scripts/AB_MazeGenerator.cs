@@ -18,27 +18,42 @@ public class AB_MazeGenerator : MonoBehaviour, IMazeGenerator
 
     #region Private Methods
 
+    /// <summary>
+    /// https://en.wikipedia.org/wiki/Maze_generation_algorithm
+    /// 
+    /// 1. Pick a random cell as the current cell and mark it as visited.
+    /// 2. While there are unvisited cells:
+    ///     1a. Pick a random neighbour.
+    ///     2a. If the chosen neighbour has not been visited:
+    ///         1b. Remove the wall between the current cell and the chosen neighbour.
+    ///         2b. Mark the chosen neighbour as visited.
+    ///     3a. Make the chosen neighbour the current cell.
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator AldousBroderAlgorithm()
     {
         var wallRemover = MazeManager.Instance.GetCurrentWallRemover(); // Caching the current wall remover
         var isAnimated = MazeManager.Instance.IsGenerationAnimated;
         var unvisitedCells = MazeManager.Instance.CellCount;
 
+        // 1
         currentCell = MazeManager.Instance.GetRandomCell();
         currentCell.IsVisited = true;
         unvisitedCells--;
 
+        // 2
         while (unvisitedCells > 0)
         {
-            var neighbour = currentCell.GetRandomNeighbour();
+            var neighbour = currentCell.GetRandomNeighbour();  //1a
 
             if (isAnimated)
                 currentCell.SetColor(Color.blue);
 
+            // 2a
             if(!neighbour.IsVisited)
             {
-                wallRemover.RemoveWalls(currentCell, neighbour);
-                neighbour.IsVisited = true;
+                wallRemover.RemoveWalls(currentCell, neighbour); // 1b
+                neighbour.IsVisited = true; // 2b
                 unvisitedCells--;
 
                 if (isAnimated)
@@ -49,7 +64,7 @@ public class AB_MazeGenerator : MonoBehaviour, IMazeGenerator
             if (isAnimated)
                 currentCell.SetColor(Color.yellow);
 
-            currentCell = neighbour;
+            currentCell = neighbour; // 3a
 
         }
 

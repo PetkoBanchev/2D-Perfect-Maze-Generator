@@ -1,0 +1,5 @@
+Open 2DPerfectMazeGenerator.exe in the Builds folder to start the application.
+
+Press Esc key to toggle the menu
+
+Disclaimer: Changing the algorithm while a maze is being generated will stop the ongoing maze generation. This is to prevent multiple coroutines from running at the same time.

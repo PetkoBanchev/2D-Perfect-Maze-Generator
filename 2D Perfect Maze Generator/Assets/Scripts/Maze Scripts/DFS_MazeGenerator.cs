@@ -20,31 +20,47 @@ public class DFS_MazeGenerator : MonoBehaviour, IMazeGenerator
 
     #region Private Methods
 
+    /// <summary>
+    /// https://en.wikipedia.org/wiki/Maze_generation_algorithm
+    /// 
+    /// 1. Choose the initial cell, mark it as visited and push it to the stack
+    /// 2. While the stack is not empty
+    ///     1a. Pop a cell from the stack and make it a current cell
+    ///     2a. If the current cell has any neighbours which have not been visited
+    ///        1b.  Push the current cell to the stack
+    ///        2b.  Choose one of the unvisited neighbours
+    ///        3b.  Remove the wall between the current cell and the chosen cell
+    ///        4b.  Mark the chosen cell as visited and push it to the stack
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator DepthFirstSearchAlgorithm()
     {
         stack = new Stack<ICell>();
         var wallRemover = MazeManager.Instance.GetCurrentWallRemover();
         var isAnimated = MazeManager.Instance.IsGenerationAnimated;
 
+        // 1
         currentCell = MazeManager.Instance.GetRandomCell();
         currentCell.IsVisited = true;
         stack.Push(currentCell);
 
+        //2
         while (stack.Count > 0)
         {
-
+            // 1a
             currentCell = stack.Pop();
 
             if (isAnimated)
                 currentCell.SetColor(Color.blue);
 
+            // 2a and 2b
             var nextCell = currentCell.GetRandomUnvisitedNeighbour();
             if (nextCell != null)
             {
-                stack.Push(currentCell);
-                wallRemover.RemoveWalls(currentCell, nextCell);
-                nextCell.IsVisited = true;
-                stack.Push(nextCell);
+                stack.Push(currentCell); // 1b
+                wallRemover.RemoveWalls(currentCell, nextCell); // 3b
+                nextCell.IsVisited = true; // 4b
+                stack.Push(nextCell); // 4b
 
                 if (isAnimated)
                     yield return new WaitForSeconds(0);

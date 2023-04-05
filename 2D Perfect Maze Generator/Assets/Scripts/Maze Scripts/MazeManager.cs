@@ -91,6 +91,7 @@ public class MazeManager : MonoBehaviour
         UIManager.Instance.OnGenerateMazePressed += CreateNewMaze; // Connects the MazeManager to the UI
         gridGenerators[cellType].OnEmptyGridGenerated += SetEmptyMaze; // default implementation
     }
+
     /// <summary>
     /// Caches all of the grid generators via relfection
     /// </summary>
@@ -195,6 +196,7 @@ public class MazeManager : MonoBehaviour
     {
         return maze[coordinates];
     }
+
     public ICell GetRandomCell()
     {
         int x = 2 * Random.Range(0, width / 2);

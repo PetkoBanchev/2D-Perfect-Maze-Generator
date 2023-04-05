@@ -32,6 +32,9 @@ public class MazeAligner : MonoBehaviour
 
         void SetCameraSize()
         {
+            if (MazeManager.Instance.CellType == Cell.HEXAGON)
+                halfWidth *= 0.5f; // Accounts for the doubled width when using hexagons. Check lines 136-139 in the MazeManager for more info
+
             if (halfHeight > halfWidth)
                 Camera.main.orthographicSize = halfHeight + 1;
             else
